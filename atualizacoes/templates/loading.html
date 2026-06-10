@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Carregando...</title>
+    <link rel="icon" href="../static/img/logo.png" type="image/x-icon">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: rgb(255, 255, 255);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Logo centralizado com animação */
+        .logo {
+            width: 200px;
+            opacity: 0;
+            animation: fadeInOut 3s ease-in-out forwards;
+        }
+
+        /* Animação: aparece e depois desaparece */
+        @keyframes fadeInOut {
+            0% {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+
+            25% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            75% {
+                opacity: 1;
+                transform: scale(1.05);
+            }
+
+            100% {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+        }
+
+        /* Fundo com brilho leve */
+        .glow {
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            background: radial-gradient(rgba(255, 0, 0, 0.4), transparent 70%);
+            filter: blur(40px);
+            z-index: -1;
+            animation: pulse 3s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                opacity: 0.6;
+            }
+
+            50% {
+                transform: scale(1.2);
+                opacity: 0.4;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 0.6;
+            }
+        }
+    </style>
+
+    <script>
+        // Espera 3 segundos e redireciona
+        setTimeout(() => {
+            window.location.href = "{{ url_for('index') }}";
+        }, 4000);
+    </script>
+</head>
+
+<body>
+    <div class="glow"></div>
+    <img src="../static/img/spfc.atual.webp" alt="SPFC Logo" class="logo">
+</body>
+
+</html>

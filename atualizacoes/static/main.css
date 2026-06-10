@@ -1,0 +1,28 @@
+* {
+    max-width: 100vw;
+}
+
+.carousel-caption {
+    background: rgba(0, 0, 0, 0.308);
+    padding: .6rem .9rem;
+    border-radius: .5rem;
+    display: inline-block;
+    /* evita ocupar toda a largura */
+}
+
+.carousel-caption h5,
+.carousel-caption p {
+    color: #fff;
+    margin: 0;
+}
+
+.carousel-item {
+    transition: transform 0.5s ease-in-out;
+}
+
+.carousel-item-next,
+.carousel-item-prev,
+.carousel-item.active {
+    transition: transform 0.5s ease;
+
+}

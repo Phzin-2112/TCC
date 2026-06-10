@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ 'Editar Publicação' if post else 'Contato' }}</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <link rel="icon" href="{{ url_for('static', filename='img/logo.png') }}" type="image/x-icon">
+    <style>
+        body {
+            background: url("{{ url_for('static', filename='img/spfc.atual.webp') }}") no-repeat center center fixed;
+            background-size: contain;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+            position: relative;
+            padding: 2rem;
+        }
+        body::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background-color: rgba(0,0,0,0.2);
+            z-index: 0;
+        }
+        .card-main {
+            background-color: rgba(255,255,255,0.94);
+            border: none;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 980px;
+            z-index: 1;
+            position: relative;
+        }
+        .form-control { border-radius: 8px; }
+        .btn-primary { border-radius: 8px; }
+        .post-item { border-radius:8px; }
+        .badge-status { font-weight:700; padding:.35rem .6rem; border-radius:.375rem; }
+        .status-aprovado { background-color:#198754; color:#fff; }
+        .status-reprovado { background-color:#dc3545; color:#fff; }
+        .status-pendente { background-color:#ffc107; color:#000; }
+        .modal { z-index: 2000 !important; }
+        .modal-backdrop { z-index: 1990 !important; }
+        .small-actions form { display:inline-block; margin-left:6px; }
+    </style>
+</head>
+<body>
+  <div class="card card-main p-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h3 class="m-0">Publicações</h3>
+      <div>
+        <button id="btnCreate" type="button" class="btn btn-success" onclick="openCreate()">Criar</button>
+        <a href="{{ url_for('index') }}" class="btn btn-secondary ms-2">Voltar</a>
+      </div>
+    </div>
+
+    <!-- Lista de posts existentes -->
+    <div class="mb-4" id="postsContainer">
+      {% if posts is defined and posts %}
+        <div class="list-group">
+          {% for p in posts %}
+            <div class="list-group-item d-flex gap-3 align-items-start post-item">
+              <div class="flex-grow-1">
+                <div class="d-flex justify-content-between align-items-start">
+                  <div>
+                    <h5 class="mb-1">{{ p.manchete }}</h5>
+                    <small class="text-muted">Por {{ p.nome }} — {{ p.email }}</small>
+                  </div>
+                  <div class="text-end">
+                    {% set st = (p.status|lower) if p.status is defined else 'pendente' %}
+                    {% if st == 'aprovado' %}
+                      <span class="badge badge-status status-aprovado">Aprovado</span>
+                    {% elif st == 'reprovado' %}
+                      <span class="badge badge-status status-reprovado">Reprovado</span>
+                    {% else %}
+                      <span class="badge badge-status status-pendente">Pendente</span>
+                    {% endif %}
+                    <div class="text-muted small">{{ p.data }}</div>
+                  </div>
+                </div>
+
+                {% if p.imagem %}
+                  <div class="mt-2"><a href="{{ p.imagem }}" target="_blank" rel="noopener">Visualizar imagem</a></div>
+                {% endif %}
+
+                <div class="mt-3 small-actions">
+                  {% if session.get('username') == p.email %}
+                    <button class="btn btn-sm btn-outline-primary" type="button" onclick='openEdit({{ p | tojson | safe }})'>Editar</button>
+
+                    <form action="{{ url_for('delete_post', post_id=p.id) }}" method="post" onsubmit="return confirm('Confirma exclusão?');" style="display:inline;">
+                      <button type="submit" class="btn btn-sm btn-outline-danger">Excluir</button>
+                    </form>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="alert alert-info d-flex justify-content-between align-items-center">
+          <div>Nenhuma publicação encontrada.</div>
+          <div>
+            <button class="btn btn-sm btn-success" onclick="openCreate()">Criar</button>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- servidor coloca JSON aqui (sem jinja dentro do JS) -->
+    {% if post %}
+      <div id="serverPostData" data-post='{{ post | tojson | safe }}' style="display:none"></div>
+    {% else %}
+      <div id="serverPostData" style="display:none"></div>
+    {% endif %}
+  </div>
+
+  <!-- Modal fora do container principal -->
+  <div class="modal fade" id="postModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content">
+        <form id="postForm" action="{{ url_for('enviar_contato') }}" method="POST">
+          <div class="modal-header">
+            <h5 class="modal-title" id="modalTitle">Criar Publicação</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+          </div>
+          <div class="modal-body">
+            <input type="hidden" name="post_id" id="post_id">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label for="nome" class="form-label">Nome</label>
+                <input type="text" id="nome" name="nome" class="form-control" placeholder="Seu nome" required>
+              </div>
+              <div class="col-md-6">
+                <label for="email" class="form-label">Email</label>
+                <input type="email" id="email" name="email" class="form-control" placeholder="seuemail@email.com" required>
+              </div>
+              <div class="col-12">
+                <label for="manchete" class="form-label">Manchete</label>
+                <textarea id="manchete" name="manchete" class="form-control" rows="4" placeholder="Digite sua manchete" required></textarea>
+              </div>
+              <div class="col-12">
+                <label for="imagem" class="form-label">Imagem (URL)</label>
+                <input type="url" id="imagem" name="imagem" class="form-control" placeholder="https://...">
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn btn-primary" id="submitBtn">Enviar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const postModalEl = document.getElementById('postModal');
+    const postModal = new bootstrap.Modal(postModalEl);
+    const modalTitle = document.getElementById('modalTitle');
+
+    function openCreate(){
+      modalTitle.textContent = 'Criar Publicação';
+      document.getElementById('post_id').value = '';
+      document.getElementById('nome').value = '';
+      document.getElementById('email').value = '';
+      document.getElementById('manchete').value = '';
+      document.getElementById('imagem').value = '';
+      document.getElementById('submitBtn').textContent = 'Enviar';
+      postModal.show();
+    }
+
+    function openEdit(obj){
+      modalTitle.textContent = 'Editar Publicação';
+      document.getElementById('post_id').value = obj.id || '';
+      document.getElementById('nome').value = obj.nome || '';
+      document.getElementById('email').value = obj.email || '';
+      document.getElementById('manchete').value = obj.manchete || '';
+      document.getElementById('imagem').value = obj.imagem || '';
+      document.getElementById('submitBtn').textContent = 'Salvar';
+      postModal.show();
+    }
+
+    // delegação para botões "Editar" gerados no loop
+    document.getElementById('postsContainer').addEventListener('click', function(e){
+      const btn = e.target.closest('.btn-outline-primary');
+      if (!btn) return;
+      // botão Editar usa onclick with object; ignore delegation for edit if not needed
+    });
+
+    // se rota /post/<id>/edit passou `post`, abrir modal preenchido
+    (function(){
+      const serverEl = document.getElementById('serverPostData');
+      const payload = serverEl && serverEl.getAttribute('data-post');
+      if (payload) {
+        try {
+          const obj = JSON.parse(payload);
+          openEdit(obj);
+        } catch (err) {
+          console.error('Erro ao parsear serverPostData', err, payload);
+        }
+      }
+    })();
+  </script>
+</body>
+</html>

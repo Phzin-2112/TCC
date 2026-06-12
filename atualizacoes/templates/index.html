@@ -6,63 +6,149 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SPFC news</title>
 
-  <!-- CSS -->
   <link rel="stylesheet" href="../static/main.css" />
-  <!-- Bootstrap CDN -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
     integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous" />
   <link rel="icon" href="../static/img/logo.png" type="image/x-icon">
+
+  <style>
+    /* Estilização customizada para a Agenda de Jogos */
+    .agenda-card {
+      background-color: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      width: 100%;
+      max-width: 350px;
+      padding: 20px;
+    }
+
+    .agenda-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #333333;
+      margin-bottom: 15px;
+    }
+
+    .match-item {
+      border-bottom: 1px solid #eeeeee;
+      padding: 12px 0;
+    }
+
+    .match-item:last-of-type {
+      border-bottom: none;
+    }
+
+    .match-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: #666666;
+      margin-bottom: 8px;
+    }
+
+    .match-date {
+      font-weight: 700;
+      color: #222222;
+    }
+
+    .match-versus {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .team {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 42%;
+    }
+
+    .team.home {
+      justify-content: flex-start;
+    }
+
+    .team.away {
+      justify-content: flex-end;
+      flex-direction: row-reverse;
+    }
+
+    .team-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: #444444;
+    }
+
+    .team-logo {
+      width: 26px;
+      height: 26px;
+      object-fit: contain;
+    }
+
+    .vs-separator {
+      color: #cccccc;
+      font-size: 12px;
+      width: 16px;
+      text-align: center;
+    }
+
+    .more-games {
+      display: inline-flex;
+      align-items: center;
+      color: #b30000;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 14px;
+      margin-top: 15px;
+    }
+
+    .more-games:hover {
+      color: #ff0000;
+    }
+  </style>
 </head>
 
 <body>
- <header>
-  <nav class="navbar fixed-top d-flex align-items-center p-3 w-100"
-       style="height: 80px; box-shadow: 0 0 10px black; background: whitesmoke;">
-    <div class="container-fluid">
-      <div class="d-flex w-100 align-items-center justify-content-between">
-        <!-- esquerda: logo -->
-        <div class="d-flex align-items-center">
-          <img src="../static/img/logo.png" alt="logo" style="height: 50px;">
+  <header>
+    <nav class="navbar fixed-top d-flex align-items-center p-3 w-100"
+      style="height: 80px; box-shadow: 0 0 10px black; background: whitesmoke;">
+      <div class="container-fluid">
+        <div class="d-flex w-100 align-items-center justify-content-between">
+          <div class="d-flex align-items-center">
+            <img src="../static/img/logo.png" alt="logo" style="height: 50px;">
+          </div>
+
+          <div class="flex-grow-1 d-none d-lg-block"></div>
+
+          <div class="d-flex align-items-center">
+            <a href="{{ url_for('post') }}" class="btn btn-primary me-2 d-none d-lg-inline-block"
+              style="height: 37px;">Post</a>
+
+            <a class="btn btn-danger me-2" href="{{ url_for('logout') }}" style="height: 37px;">Exit</a>
+
+            <button class="navbar-toggler d-lg-none" type="button" data-bs-toggle="offcanvas"
+              data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar" aria-label="Toggle navigation">
+              <span class="navbar-toggler-icon"></span>
+            </button>
+          </div>
         </div>
 
-        <!-- pequeno espaçador central para manter layout -->
-        <div class="flex-grow-1 d-none d-lg-block"></div>
-
-        <!-- direita: Post + logout (visível) e toggler (apenas em mobile) -->
-        <div class="d-flex align-items-center">
-          <!-- Post as button on large screens -->
-          <a href="{{ url_for('post') }}" class="btn btn-primary me-2 d-none d-lg-inline-block" style="height: 37px;">Post</a>
-
-          <!-- Logout -->
-          <a class="btn btn-danger me-2" href="{{ url_for('logout') }}" style="height: 37px;">Exit</a>
-
-          <!-- mobile toggler -->
-          <button class="navbar-toggler d-lg-none" type="button" data-bs-toggle="offcanvas"
-                  data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-          </button>
-        </div>
-      </div>
-
-      <!-- offcanvas (mantido para mobile) -->
-      <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
-        <div class="offcanvas-header" style="background-color: #000000">
-          <h5 class="text-white">Menu</h5>
-          <button type="button" class="btn-close bg-light" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-        </div>
-        <div class="offcanvas-body" style="background-color: #000000c2; font-weight: bold">
-          <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
-            <!-- Post também acessível no menu mobile -->
-            <li class="nav-item d-lg-none"><a class="nav-link text-white" href="{{ url_for('post') }}">New</a></li>
-          </ul>
+        <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
+          <div class="offcanvas-header" style="background-color: #000000">
+            <h5 class="text-white">Menu</h5>
+            <button type="button" class="btn-close bg-light" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+          </div>
+          <div class="offcanvas-body" style="background-color: #000000c2; font-weight: bold">
+            <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
+              <li class="nav-item d-lg-none"><a class="nav-link text-white" href="{{ url_for('post') }}">New</a></li>
+            </ul>
+          </div>
         </div>
       </div>
-    </div>
-  </nav>
-</header>
+    </nav>
+  </header>
 
   <main class="container mt-1 w-100" style="padding-top: 160px">
-    <!-- Seção Carrossel -->
     <section class="container" id="home">
       <div id="carouselExampleDark" class="carousel carousel-dark slide" data-bs-ride="carousel">
         <div class="carousel-indicators">
@@ -117,127 +203,181 @@
     <section id="cardapio" class="mb-5 w-100">
       <hr />
       <h2 class="mb-3">SPFC News</h2>
-      <div class="d-flex gap-5">
-        <div class="row row-cols-1 row-cols-md-3 g-4">
+      <div class="d-flex flex-column flex-md-row gap-4 align-items-start">
+        <div class="row row-cols-1 row-cols-md-3 g-4 flex-grow-1">
           <div class="col">
             <div class="card h-100">
-              <img src="https://tudosobrepaulista.com.br/wp-content/uploads/2025/10/Fotos-da-Materia-63-2.jpg"
+              <img
+                src="https://s2-ge.glbimg.com/s5e9a46x-uDjfc-DlwLVOMwApMs=/0x339:1638x1260/1080x608/smart/filters:max_age(3600)/https://i.s3.glbimg.com/v1/AUTH_bc8228b6673f488aa253bbcb03c80ec5/internal_photos/bs/2026/Y/i/4F0DwNSredcFHwr9HxCQ/55050021891-1d0fef5b80-k.jpg"
                 class="card-img-top" alt="..." />
               <div class="card-body">
-                <h5 class="card-title">Card title</h5>
+                <h5 class="card-title">Enzo Díaz é condenado a 30 dias de suspensão por quebrar placa em derrota do São
+                  Paulo</h5>
                 <p class="card-text">
-                  Lorem, ipsum dolor sit amet consectetur adipisicing elit. Ut ea voluptate cupiditate perferendis
-                  debitis, maiores placeat quam sapiente alias iure voluptates eligendi doloremque corrupti possimus
-                  voluptatibus fugiat aperiam, architecto velit.
+                  O STJD suspendeu por 30 dias o lateral Enzo Díaz, do São Paulo, por chutar e quebrar a placa de
+                  substituição na derrota contra o Remo, no Mangueirão, punição aplicada por unanimidade com base no
+                  artigo 219 do CBJD e mantida nesta quarta-feira após o VAR não identificar o atleta na hora do lance
+                  devido a imagens borradas.
                 </p>
               </div>
             </div>
           </div>
           <div class="col">
             <div class="card h-100">
-              <img src="https://tudosobrepaulista.com.br/wp-content/uploads/2025/10/Fotos-da-Materia-62-1.jpg"
+              <img
+                src="https://s2-ge.glbimg.com/7EyIfYsndqp6jo0D7CXRqBwRmkE=/0x0:1920x1280/984x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_bc8228b6673f488aa253bbcb03c80ec5/internal_photos/bs/2026/g/M/YiQyB4QBGmI6Xf4cWXfQ/1836cf1b-5340-4245-ac04-22f425831189.jpg"
                 class="card-img-top" alt="..." />
               <div class="card-body">
-                <h5 class="card-title">Card title</h5>
-                <p class="card-text">Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsum asperiores maxime
-                  quod corporis vel esse ex cupiditate? Nesciunt enim deserunt qui cupiditate veritatis, eveniet illo
-                  tenetur quaerat aspernatur, accusamus laboriosam?</p>
+                <h5 class="card-title">São Paulo planeja saídas e pode negociar até sete jogadores na próxima janela
+                </h5>
+                <p class="card-text">O São Paulo planeja negociar até sete jogadores na próxima janela para enxugar o
+                  elenco e reduzir a folha salarial: o volante Negrucci deve ser emprestado, atletas fora dos planos
+                  como Young, Belém, Luan, Arboleda e Cédric Soares estão abertos a propostas, e Bobadilla pode ser
+                  vendido após valorização na Copa do Mundo</p>
               </div>
             </div>
           </div>
           <div class="col">
             <div class="card h-100">
               <img
-                src="https://tudosobrepaulista.com.br/wp-content/uploads/2025/10/FORATO-NOVO-CAPA-2025-10-24T130225.039.png"
+                src="https://s2-ge.glbimg.com/A-SgXcKbRTO6vWQbIsp54_bzzGg=/0x0:1600x1200/984x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_bc8228b6673f488aa253bbcb03c80ec5/internal_photos/bs/2026/N/O/imw0yuTFA9Aa07Y3BLIg/whatsapp-image-2026-06-10-at-17.56.07.jpeg"
                 class="card-img-top" alt="..." />
               <div class="card-body">
-                <h5 class="card-title">Card title</h5>
-                <p class="card-text">Lorem ipsum dolor sit amet consectetur adipisicing elit. Error qui asperiores enim
-                  autem soluta mollitia molestias, ratione, facere repellendus aspernatur commodi ab ducimus maxime!
-                  Accusantium in repellat commodi accusamus distinctio!</p>
+                <h5 class="card-title">São Paulo inicia instalação do gramado do Morumbis no CT; veja imagens</h5>
+                <p class="card-text">O São Paulo iniciou a instalação do gramado Celebration no CT da Barra Funda para
+                  padronizar os campos de treino com o Morumbis. A reforma, iniciada em maio pela World Sports, termina
+                  nas próximas semanas, e o estádio também passará por melhorias na drenagem durante a pausa da Copa do
+                  Mundo.</p>
               </div>
             </div>
           </div>
         </div>
-        <div>
-          <div class="card text-center mb-3" style="width: 18rem;">
-            <div class="card-body">
-              <h5 class="card-title">Special title treatment</h5>
-              <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
+
+        <div class="agenda-card mx-auto mx-md-0">
+          <h3 class="agenda-title">Agenda do são paulo</h3>
+
+          <div class="match-item">
+            <div class="match-header">
+              <span>Campeonato Brasileiro</span>
+              <span class="match-date">22/07 &bull; Qua</span>
+            </div>
+            <div class="match-versus">
+              <div class="team home">
+                <span class="team-name">SAO</span>
+                <img class="team-logo" src="../static/img/logo.png" alt="São Paulo">
+              </div>
+              <div class="vs-separator">✕</div>
+              <div class="team away">
+                <span class="team-name">CAP</span>
+                <img class="team-logo"
+                  src="https://images.seeklogo.com/logo-png/36/2/athletico-paranaense-logo-png_seeklogo-361913.png"
+                  alt="Athletico-PR">
+              </div>
             </div>
           </div>
 
-          <div class="card text-center mb-3" style="width: 18rem;">
-            <div class="card-body">
-              <h5 class="card-title">Special title treatment</h5>
-              <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
+          <div class="match-item">
+            <div class="match-header">
+              <span>Campeonato Brasileiro</span>
+              <span class="match-date">26/07 &bull; Dom</span>
+            </div>
+            <div class="match-versus">
+              <div class="team home">
+                <span class="team-name">FLA</span>
+                <img class="team-logo"
+                  src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRlW8PlCyMI1Ah0UcPjCSnjo-FENvD-0jO3tt8pLQ64nA&s=10"
+                  alt="Flamengo">
+              </div>
+              <div class="vs-separator">✕</div>
+              <div class="team away">
+                <span class="team-name">SAO</span>
+                <img class="team-logo" src="../static/img/logo.png" alt="São Paulo">
+              </div>
             </div>
           </div>
 
-          <div class="card text-center mb-3" style="width: 18rem;">
-            <div class="card-body">
-              <h5 class="card-title">Special title treatment</h5>
-              <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
+          <div class="match-item">
+            <div class="match-header">
+              <span>Campeonato Brasileiro</span>
+              <span class="match-date">29/07 &bull; Qua</span>
+            </div>
+            <div class="match-versus">
+              <div class="team home">
+                <span class="team-name">SAO</span>
+                <img class="team-logo" src="../static/img/logo.png" alt="São Paulo">
+              </div>
+              <div class="vs-separator">✕</div>
+              <div class="team away">
+                <span class="team-name">SAN</span>
+                <img class="team-logo"
+                  src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSnXVtdjmkVK1isWo0BiECzPAEiEJXvslT-iNGyC5K7Eg&s=10"
+                  alt="Santos">
+              </div>
             </div>
           </div>
+
+          <a href="https://www.google.com/search?q=SPFC+pr%C3%B3ximos+jogos&sca_esv=5aa9e1661acb2463&biw=1920&bih=945&sxsrf=ANbL-n6UFmQkg4E6EnOSWtgOAlCz4JBGog%3A1781274826104&ei=yhgsarj1BZ2P4dUPqJ6Q8QM&ved=0ahUKEwi4gofq9YGVAxWdR7gEHSgPJD4Q4dUDCBI&uact=5&oq=SPFC+pr%C3%B3ximos+jogos&gs_lp=Egxnd3Mtd2l6LXNlcnAiFFNQRkMgcHLDs3hpbW9zIGpvZ29zMggQABiABBjLATIGEAAYCBgeMgYQABgIGB4yBhAAGAgYHjIGEAAYCBgeMgYQABgIGB4yBhAAGAgYHjIGEAAYCBgeMggQABgIGB4YCjIGEAAYCBgeSIkZUOINWNEVcAF4AZABAJgBgAGgAcwDqgEDMC40uAEDyAEA-AEBmAIFoALkA8ICChAAGEcY1gQYsAPCAg4QABjkAhjWBBiwA9gBAcICFxAuGNwGGLgGGNoGGNgCGMgDGLAD2AEBwgIGEAAYBxgewgIIEAAYBxgeGArCAggQABgIGAcYHsICCBAAGAcYHhgTwgIKEAAYCBgHGB4YE8ICDBAAGAgYBxgeGBMYCpgDAIgGAZAGDboGBggBEAEYCZIHAzEuNKAHiB2yBwMwLjS4B90DwgcFMC4yLjPIBxKACAE&sclient=gws-wiz-serp"
+            class="more-games">
+            Mais Jogos
+            <svg class="ms-1" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2">
+              <path d="M5 12h14M12 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </a>
         </div>
       </div>
     </section>
 
-<section id="cardapio" class="mb-5 w-100">
-  <hr />
-  <h2 class="mb-3">Publicação dos Fans</h2>
+    <section id="cardapio" class="mb-5 w-100">
+      <hr />
+      <h2 class="mb-3">Publicação dos Fans</h2>
 
-  <div class="row row-cols-1 row-cols-md-3 g-4">
-    {% set any_approved = namespace(count=0) %}
-    {% for email, posts in contatos.items() %}
-      {% for p in posts %}
+      <div class="row row-cols-1 row-cols-md-3 g-4">
+        {% set any_approved = namespace(count=0) %}
+        {% for email, posts in contatos.items() %}
+        {% for p in posts %}
         {% if (p.status|lower) == 'aprovado' %}
-          {% set any_approved.count = any_approved.count + 1 %}
-          <div class="col">
-            <div class="card h-100">
-              {% if p.imagem %}
-                <img src="{{ p.imagem }}" class="card-img-top" alt="imagem da publicação">
-              {% endif %}
-              <div class="card-body">
-                <h5 class="card-title">{{ p.manchete }}</h5>
-                <p class="card-text">{{ p.nome }} — {{ p.email }}</p>
-                <p class="small text-muted">{{ p.data }}</p>
-                <p class="card-text">{{ p.conteudo if p.conteudo is defined else '' }}</p>
-                <div class="mt-2">
-                  {% if session.get('username') == p.email or session.get('username') == p.nome %}
-                    <a href="{{ url_for('edit_post', post_id=p.id) }}" class="btn btn-sm btn-outline-primary">Editar</a>
+        {% set any_approved.count = any_approved.count + 1 %}
+        <div class="col">
+          <div class="card h-100">
+            {% if p.imagem %}
+            <img src="{{ p.imagem }}" class="card-img-top" alt="imagem da publicação">
+            {% endif %}
+            <div class="card-body">
+              <h5 class="card-title">{{ p.manchete }}</h5>
+              <p class="card-text">{{ p.nome }} — {{ p.email }}</p>
+              <p class="small text-muted">{{ p.data }}</p>
+              <p class="card-text">{{ p.conteudo if p.conteudo is defined else '' }}</p>
+              <div class="mt-2">
+                {% if session.get('username') == p.email or session.get('username') == p.nome %}
+                <a href="{{ url_for('edit_post', post_id=p.id) }}" class="btn btn-sm btn-outline-primary">Editar</a>
 
-                    <form action="{{ url_for('delete_post', post_id=p.id) }}" method="post" style="display:inline;"
-                          onsubmit="return confirm('Confirma exclusão?');">
-                      <button type="submit" class="btn btn-sm btn-outline-danger">Excluir</button>
-                    </form>
-                  {% endif %}
-                </div>
+                <form action="{{ url_for('delete_post', post_id=p.id) }}" method="post" style="display:inline;"
+                  onsubmit="return confirm('Confirma exclusão?');">
+                  <button type="submit" class="btn btn-sm btn-outline-danger">Excluir</button>
+                </form>
+                {% endif %}
               </div>
             </div>
           </div>
+        </div>
         {% endif %}
-      {% endfor %}
-    {% endfor %}
-  </div>
+        {% endfor %}
+        {% endfor %}
+      </div>
 
-  {% if any_approved.count == 0 %}
-    <div class="alert alert-info mt-3">Nenhuma publicação aprovada disponível no momento.</div>
-  {% endif %}
-</section>
-
-
+      {% if any_approved.count == 0 %}
+      <div class="alert alert-info mt-3">Nenhuma publicação aprovada disponível no momento.</div>
+      {% endif %}
+    </section>
   </main>
 
   <iframe
     src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3656.065178885505!2d-46.7210008!3d-23.6010069!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94ce56c31b1fe649%3A0x7d134f4dfc6618c2!2sEst%C3%A1dio%20MorumBIS!5e0!3m2!1spt-BR!2sbr!4v1698070912345!5m2!1spt-BR!2sbr"
     width="100%" height="450" style="border:0;" allowfullscreen="" loading="lazy"
     referrerpolicy="no-referrer-when-downgrade">
-  </iframe>
+    iframe>
 
-  </main>
-  <footer>
     <footer>
       <nav class="navbar d-flex justify-content-center align-items-center p-3 w-100"
         style="height: 80px; background-color: #ffffff; box-shadow: 0 0 10px black;">
@@ -246,11 +386,11 @@
       </nav>
     </footer>
 
-    <!-- WhatsApp -->
     <a href="https://wa.me/5511988566385?text=Olá!%20Gostaria%20de%20fazer%20um%20pedido." target="_blank">
       <img src="../static/img/WhatsApp.svg-removebg-preview.png"
         style="position: fixed; bottom: 10px; right: 20px; width: 50px;">
     </a>
+
     <script src="{{ url_for('static', filename='scripts.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
       integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"

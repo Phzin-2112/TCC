@@ -29,7 +29,6 @@ def ensure_db():
     global _db_initialized
     if not _db_initialized:
         init_db()
-        # após criar DB, garantir coluna status
         try:
             _ensure_posts_status_column()
         except Exception:
@@ -55,7 +54,7 @@ def login():
     password = request.form.get('password', '').strip()
     app.logger.debug("POST /login username=%s", username)
 
-    # Usuário admin fixo
+    # Usuario do Admin
     if username == 'admin' and password == 'senha123':
         session['username'] = username
         session.permanent = True
